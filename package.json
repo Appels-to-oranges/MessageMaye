@@ -1,0 +1,16 @@
+{
+  "name": "messagemaye",
+  "version": "1.0.0",
+  "description": "Real-time room-based messaging with Socket.io",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["chat", "socket.io", "rooms"],
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2"
+  }
+}

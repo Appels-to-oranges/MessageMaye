@@ -1,0 +1,48 @@
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+const path = require('path');
+
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/chat', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'chat.html'));
+});
+
+io.on('connection', (socket) => {
+  socket.on('join-room', ({ roomKey, nickname }) => {
+    const safeRoom = String(roomKey).trim().toLowerCase() || 'default';
+    const safeNick = String(nickname).trim() || 'Anonymous';
+    socket.roomKey = safeRoom;
+    socket.nickname = safeNick;
+    socket.join(safeRoom);
+    io.to(safeRoom).emit('user-joined', { nickname: safeNick });
+  });
+
+  socket.on('send-message', (text) => {
+    const roomKey = socket.roomKey;
+    const nickname = socket.nickname;
+    if (!roomKey || !nickname) return;
+    const payload = { nickname, text: String(text).trim(), time: new Date().toISOString() };
+    io.to(roomKey).emit('new-message', payload);
+  });
+
+  socket.on('disconnect', () => {
+    if (socket.nickname && socket.roomKey) {
+      io.to(socket.roomKey).emit('user-left', { nickname: socket.nickname });
+    }
+  });
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`MessageMaye running at http://localhost:${PORT}`);
+});
