@@ -108,11 +108,12 @@
   socket.emit('join-room', { roomKey: roomKey.trim().toLowerCase(), nickname });
 
   socket.on('user-joined', (data) => {
-    appendMessage('system', { text: data.nickname + ' joined the room' });
+    const isOwn = data.nickname === nickname;
+    appendMessage(isOwn ? 'own' : 'other', { nickname: data.nickname, text: 'joined the room' });
   });
 
   socket.on('user-left', (data) => {
-    appendMessage('system', { text: data.nickname + ' left the room' });
+    appendMessage('other', { nickname: data.nickname, text: 'left the room' });
   });
 
   socket.on('new-message', (data) => {
