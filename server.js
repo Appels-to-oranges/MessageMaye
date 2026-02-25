@@ -45,6 +45,20 @@ io.on('connection', (socket) => {
     });
   });
 
+  socket.on('change-radio', (station) => {
+    if (!socket.roomKey || !socket.nickname) return;
+    if (!station || typeof station.name !== 'string' || typeof station.url !== 'string') return;
+    io.to(socket.roomKey).emit('radio-changed', {
+      nickname: socket.nickname,
+      station: { name: station.name.slice(0, 200), url: station.url }
+    });
+  });
+
+  socket.on('stop-radio', () => {
+    if (!socket.roomKey || !socket.nickname) return;
+    io.to(socket.roomKey).emit('radio-stopped', { nickname: socket.nickname });
+  });
+
   socket.on('change-background', (theme) => {
     if (!socket.roomKey || !socket.nickname) return;
     const safeTheme = String(theme).trim().toLowerCase();

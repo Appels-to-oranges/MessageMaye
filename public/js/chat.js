@@ -166,6 +166,118 @@
     });
   });
 
+  /* ---------- Radio panel ---------- */
+  var radioOverlay = document.getElementById('radio-overlay');
+  var radioOpenBtn = document.getElementById('radio-btn');
+  var radioCloseBtn = document.getElementById('radio-close');
+  var radioSearchInput = document.getElementById('radio-search');
+  var radioSearchBtn = document.getElementById('radio-search-btn');
+  var radioResults = document.getElementById('radio-results');
+  var nowPlayingBar = document.getElementById('now-playing');
+  var nowPlayingLabel = document.getElementById('now-playing-label');
+  var radioStopBtn = document.getElementById('radio-stop');
+  var radioAudio = new Audio();
+  radioAudio.crossOrigin = 'anonymous';
+  var RADIO_API = 'https://de1.api.radio-browser.info/json/stations/search';
+
+  radioOpenBtn.addEventListener('click', function () { openPanel(radioOverlay); });
+  radioCloseBtn.addEventListener('click', function () { closePanel(radioOverlay); });
+  radioOverlay.addEventListener('click', function (e) {
+    if (e.target === radioOverlay) closePanel(radioOverlay);
+  });
+
+  function searchStations(query) {
+    radioResults.innerHTML = '<div class="radio-empty">Searching...</div>';
+    var params = '?name=' + encodeURIComponent(query) + '&limit=25&order=votes&reverse=true&hidebroken=true';
+    fetch(RADIO_API + params)
+      .then(function (r) { return r.json(); })
+      .then(function (stations) {
+        radioResults.innerHTML = '';
+        if (!stations.length) {
+          radioResults.innerHTML = '<div class="radio-empty">No stations found</div>';
+          return;
+        }
+        stations.forEach(function (st) {
+          var url = st.url_resolved || st.url;
+          if (!url) return;
+          var row = document.createElement('div');
+          row.className = 'radio-station';
+          var icon = document.createElement('img');
+          icon.className = 'radio-station-icon';
+          icon.src = st.favicon || '';
+          icon.alt = '';
+          icon.onerror = function () { this.style.display = 'none'; };
+          var info = document.createElement('div');
+          info.className = 'radio-station-info';
+          var name = document.createElement('div');
+          name.className = 'radio-station-name';
+          name.textContent = st.name;
+          var meta = document.createElement('div');
+          meta.className = 'radio-station-meta';
+          meta.textContent = [st.country, st.tags].filter(Boolean).join(' \u00B7 ');
+          info.appendChild(name);
+          info.appendChild(meta);
+          row.appendChild(icon);
+          row.appendChild(info);
+          row.addEventListener('click', function () {
+            socket.emit('change-radio', { name: st.name, url: url });
+            closePanel(radioOverlay);
+          });
+          radioResults.appendChild(row);
+        });
+      })
+      .catch(function () {
+        radioResults.innerHTML = '<div class="radio-empty">Search failed — try again</div>';
+      });
+  }
+
+  radioSearchBtn.addEventListener('click', function () {
+    var q = radioSearchInput.value.trim();
+    if (q) searchStations(q);
+  });
+  radioSearchInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      var q = radioSearchInput.value.trim();
+      if (q) searchStations(q);
+    }
+  });
+
+  function playRadio(station) {
+    radioAudio.src = station.url;
+    radioAudio.play().catch(function () {});
+    nowPlayingLabel.textContent = '\u{1F4FB} ' + station.name;
+    nowPlayingBar.hidden = false;
+  }
+
+  function stopRadio() {
+    radioAudio.pause();
+    radioAudio.src = '';
+    nowPlayingBar.hidden = true;
+  }
+
+  radioStopBtn.addEventListener('click', function () {
+    socket.emit('stop-radio');
+  });
+
+  socket.on('radio-changed', function (data) {
+    playRadio(data.station);
+    var isOwn = data.nickname === nickname;
+    appendMessage(isOwn ? 'own' : 'other', {
+      nickname: data.nickname,
+      text: 'tuned the radio to ' + data.station.name
+    });
+  });
+
+  socket.on('radio-stopped', function (data) {
+    stopRadio();
+    var isOwn = data.nickname === nickname;
+    appendMessage(isOwn ? 'own' : 'other', {
+      nickname: data.nickname,
+      text: 'stopped the radio'
+    });
+  });
+
   /* ---------- Photo upload ---------- */
   var photoBtn = document.getElementById('photo-btn');
   var photoInput = document.getElementById('photo-input');

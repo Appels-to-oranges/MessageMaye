@@ -542,3 +542,146 @@ body.lobby {
 .theme-options .theme-opt {
   min-width: 4rem;
 }
+
+/* Radio panel */
+.radio-panel {
+  max-width: 380px;
+}
+
+.radio-search-wrap {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.radio-search-wrap input {
+  flex: 1;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid #3b4261;
+  border-radius: 8px;
+  background: #1a1b26;
+  color: #c0caf5;
+  font-size: 0.9rem;
+}
+
+.radio-search-wrap input:focus {
+  outline: none;
+  border-color: #7aa2f7;
+}
+
+.radio-search-wrap button {
+  padding: 0.55rem 0.85rem;
+  border: none;
+  border-radius: 8px;
+  background: #7aa2f7;
+  color: #1a1b26;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.radio-search-wrap button:hover {
+  filter: brightness(1.1);
+}
+
+.radio-results {
+  max-height: 280px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.radio-results .radio-empty {
+  text-align: center;
+  color: #565f89;
+  font-size: 0.85rem;
+  padding: 1.5rem 0;
+}
+
+.radio-station {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid #3b4261;
+  border-radius: 8px;
+  background: #24283b;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.radio-station:hover {
+  border-color: #7aa2f7;
+  background: #2d3250;
+}
+
+.radio-station-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #3b4261;
+  flex-shrink: 0;
+}
+
+.radio-station-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.radio-station-name {
+  font-size: 0.9rem;
+  color: #c0caf5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.radio-station-meta {
+  font-size: 0.75rem;
+  color: #565f89;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Now playing bar */
+.now-playing {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem;
+  background: #1e2030;
+  border-bottom: 1px solid #3b4261;
+  font-size: 0.8rem;
+  color: #9ece6a;
+}
+
+.now-playing-label {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.now-playing-stop {
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: #f7768e;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.now-playing-stop:hover {
+  background: #3b4261;
+}
