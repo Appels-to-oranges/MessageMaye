@@ -158,11 +158,7 @@ body.lobby {
   position: relative;
 }
 
-.chat-page.theme-winter-night { background-image: url('/images/themes/winter-night.png'); }
-.chat-page.theme-sunny-sky { background-image: url('/images/themes/sunny-sky.png'); }
-.chat-page.theme-waterfront { background-image: url('/images/themes/waterfront.png'); }
-.chat-page.theme-space-needle { background-image: url('/images/themes/space-needle.png'); }
-.chat-page.theme-sunset-harbor { background-image: url('/images/themes/sunset-harbor.png'); }
+/* Image URL set by JS (prefers .gif for looping, fallback .png) */
 
 /* Subtle overlay on image themes so text stays readable */
 .chat-page.theme-winter-night::before,

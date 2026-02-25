@@ -12,6 +12,17 @@
 
   const STORAGE_KEYS = { font: 'messageMaye_fontSize', theme: 'messageMaye_theme' };
   const body = document.body;
+  const IMAGE_THEMES = ['winter-night', 'sunny-sky', 'waterfront', 'space-needle', 'sunset-harbor'];
+
+  function setImageThemeBg(theme) {
+    const base = '/images/themes/' + theme;
+    const gifUrl = base + '.gif';
+    const pngUrl = base + '.png';
+    const img = new Image();
+    img.onload = function () { body.style.backgroundImage = 'url(' + gifUrl + ')'; };
+    img.onerror = function () { body.style.backgroundImage = 'url(' + pngUrl + ')'; };
+    img.src = gifUrl;
+  }
 
   function applySettings() {
     const font = localStorage.getItem(STORAGE_KEYS.font) || 'medium';
@@ -21,6 +32,11 @@
     body.classList.remove('theme-warm', 'theme-cool', 'theme-soft', 'theme-ocean',
       'theme-winter-night', 'theme-sunny-sky', 'theme-waterfront', 'theme-space-needle', 'theme-sunset-harbor');
     if (theme !== 'default') body.classList.add('theme-' + theme);
+    if (IMAGE_THEMES.includes(theme)) {
+      setImageThemeBg(theme);
+    } else {
+      body.style.backgroundImage = '';
+    }
     document.querySelectorAll('.size-opt').forEach((el) => {
       el.classList.toggle('active', el.dataset.size === font);
     });
