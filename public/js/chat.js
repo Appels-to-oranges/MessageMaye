@@ -26,11 +26,7 @@
     img.src = gifUrl + cacheBust;
   }
 
-  function applySettings() {
-    const font = localStorage.getItem(STORAGE_KEYS.font) || 'medium';
-    const theme = localStorage.getItem(STORAGE_KEYS.theme) || 'default';
-    body.classList.remove('font-small', 'font-medium', 'font-large');
-    body.classList.add('font-' + font);
+  function applyTheme(theme) {
     body.classList.remove('theme-warm', 'theme-cool', 'theme-soft', 'theme-ocean',
       'theme-winter-night', 'theme-sunny-sky', 'theme-waterfront', 'theme-space-needle', 'theme-sunset-harbor');
     if (theme !== 'default') body.classList.add('theme-' + theme);
@@ -40,50 +36,64 @@
     } else {
       msgEl.style.backgroundImage = '';
     }
-    document.querySelectorAll('.size-opt').forEach((el) => {
-      el.classList.toggle('active', el.dataset.size === font);
-    });
-    document.querySelectorAll('.theme-opt').forEach((el) => {
+    document.querySelectorAll('.theme-opt').forEach(function (el) {
       el.classList.toggle('active', el.dataset.theme === theme);
+    });
+    localStorage.setItem(STORAGE_KEYS.theme, theme);
+  }
+
+  function applySettings() {
+    const font = localStorage.getItem(STORAGE_KEYS.font) || 'medium';
+    const theme = localStorage.getItem(STORAGE_KEYS.theme) || 'default';
+    body.classList.remove('font-small', 'font-medium', 'font-large');
+    body.classList.add('font-' + font);
+    applyTheme(theme);
+    document.querySelectorAll('.size-opt').forEach(function (el) {
+      el.classList.toggle('active', el.dataset.size === font);
     });
   }
 
   applySettings();
 
-  const overlay = document.getElementById('settings-overlay');
-  const openBtn = document.getElementById('settings-btn');
-  const closeBtn = document.getElementById('settings-close');
+  /* ---------- Settings panel (font size only) ---------- */
+  const settingsOverlay = document.getElementById('settings-overlay');
+  const settingsOpenBtn = document.getElementById('settings-btn');
+  const settingsCloseBtn = document.getElementById('settings-close');
 
-  function openSettings() {
+  function openPanel(overlay) {
     overlay.classList.add('open');
     overlay.setAttribute('aria-hidden', 'false');
   }
-  function closeSettings() {
+  function closePanel(overlay) {
     overlay.classList.remove('open');
     overlay.setAttribute('aria-hidden', 'true');
   }
 
-  openBtn.addEventListener('click', openSettings);
-  closeBtn.addEventListener('click', closeSettings);
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) closeSettings();
+  settingsOpenBtn.addEventListener('click', function () { openPanel(settingsOverlay); });
+  settingsCloseBtn.addEventListener('click', function () { closePanel(settingsOverlay); });
+  settingsOverlay.addEventListener('click', function (e) {
+    if (e.target === settingsOverlay) closePanel(settingsOverlay);
   });
 
-  document.querySelectorAll('.size-opt').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const size = btn.dataset.size;
-      localStorage.setItem(STORAGE_KEYS.font, size);
-      applySettings();
-    });
-  });
-  document.querySelectorAll('.theme-opt').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const theme = btn.dataset.theme;
-      localStorage.setItem(STORAGE_KEYS.theme, theme);
+  document.querySelectorAll('.size-opt').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      localStorage.setItem(STORAGE_KEYS.font, btn.dataset.size);
       applySettings();
     });
   });
 
+  /* ---------- Backgrounds panel ---------- */
+  const bgOverlay = document.getElementById('backgrounds-overlay');
+  const bgOpenBtn = document.getElementById('backgrounds-btn');
+  const bgCloseBtn = document.getElementById('backgrounds-close');
+
+  bgOpenBtn.addEventListener('click', function () { openPanel(bgOverlay); });
+  bgCloseBtn.addEventListener('click', function () { closePanel(bgOverlay); });
+  bgOverlay.addEventListener('click', function (e) {
+    if (e.target === bgOverlay) closePanel(bgOverlay);
+  });
+
+  /* ---------- Socket ---------- */
   const socket = io();
   const messagesEl = document.getElementById('messages');
   const form = document.getElementById('send-form');
@@ -107,21 +117,33 @@
 
   socket.emit('join-room', { roomKey: roomKey.trim().toLowerCase(), nickname });
 
-  socket.on('user-joined', (data) => {
+  socket.on('user-joined', function (data) {
     const isOwn = data.nickname === nickname;
     appendMessage(isOwn ? 'own' : 'other', { nickname: data.nickname, text: 'joined the room' });
   });
 
-  socket.on('user-left', (data) => {
+  socket.on('user-left', function (data) {
     appendMessage('other', { nickname: data.nickname, text: 'left the room' });
   });
 
-  socket.on('new-message', (data) => {
+  socket.on('new-message', function (data) {
     const isOwn = data.nickname === nickname;
     appendMessage(isOwn ? 'own' : 'other', data);
   });
 
-  form.addEventListener('submit', (e) => {
+  socket.on('background-changed', function (data) {
+    applyTheme(data.theme);
+    appendMessage('system', { text: data.nickname + ' changed the background' });
+  });
+
+  /* When a theme button in the backgrounds panel is clicked, broadcast to room */
+  document.querySelectorAll('.theme-opt').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      socket.emit('change-background', btn.dataset.theme);
+    });
+  });
+
+  form.addEventListener('submit', function (e) {
     e.preventDefault();
     const text = input.value.trim();
     if (!text) return;

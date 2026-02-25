@@ -11,8 +11,38 @@
     <a href="/" class="back-link" title="Leave and go back">← Back</a>
     <span class="room-badge" id="room-badge">Room</span>
     <span class="nick-badge" id="nick-badge">You</span>
-    <button type="button" class="settings-btn" id="settings-btn" title="Settings" aria-label="Settings">⚙</button>
+    <button type="button" class="header-icon-btn" id="backgrounds-btn" title="Backgrounds" aria-label="Backgrounds">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+    </button>
+    <button type="button" class="header-icon-btn" id="settings-btn" title="Settings" aria-label="Settings">⚙</button>
   </header>
+
+  <div class="settings-overlay" id="backgrounds-overlay" aria-hidden="true">
+    <div class="settings-panel">
+      <div class="settings-header">
+        <h2>Backgrounds</h2>
+        <button type="button" class="settings-close" id="backgrounds-close" aria-label="Close">×</button>
+      </div>
+      <div class="settings-body">
+        <div class="setting-group">
+          <label>Choose a background for everyone</label>
+          <div class="setting-options theme-options" role="group" aria-label="Background theme">
+            <button type="button" class="theme-opt active" data-theme="default" title="Default dark">Default</button>
+            <button type="button" class="theme-opt" data-theme="warm" title="Warm dark">Warm</button>
+            <button type="button" class="theme-opt" data-theme="cool" title="Cool blue">Cool</button>
+            <button type="button" class="theme-opt" data-theme="soft" title="Soft gray">Soft</button>
+            <button type="button" class="theme-opt" data-theme="ocean" title="Ocean">Ocean</button>
+            <button type="button" class="theme-opt" data-theme="winter-night" title="Winter night">Winter</button>
+            <button type="button" class="theme-opt" data-theme="sunny-sky" title="Sunny sky">Sunny</button>
+            <button type="button" class="theme-opt" data-theme="waterfront" title="City waterfront">Waterfront</button>
+            <button type="button" class="theme-opt" data-theme="space-needle" title="Space Needle">Seattle</button>
+            <button type="button" class="theme-opt" data-theme="sunset-harbor" title="Sunset harbor">Harbor</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="settings-overlay" id="settings-overlay" aria-hidden="true">
     <div class="settings-panel">
       <div class="settings-header">
@@ -26,21 +56,6 @@
             <button type="button" class="size-opt" data-size="small">Small</button>
             <button type="button" class="size-opt active" data-size="medium">Medium</button>
             <button type="button" class="size-opt" data-size="large">Large</button>
-          </div>
-        </div>
-        <div class="setting-group">
-          <label>Background</label>
-          <div class="setting-options theme-options" role="group" aria-label="Background theme">
-            <button type="button" class="theme-opt active" data-theme="default" title="Default dark">Default</button>
-            <button type="button" class="theme-opt" data-theme="warm" title="Warm dark">Warm</button>
-            <button type="button" class="theme-opt" data-theme="cool" title="Cool blue">Cool</button>
-            <button type="button" class="theme-opt" data-theme="soft" title="Soft gray">Soft</button>
-            <button type="button" class="theme-opt" data-theme="ocean" title="Ocean">Ocean</button>
-            <button type="button" class="theme-opt" data-theme="winter-night" title="Winter night">Winter</button>
-            <button type="button" class="theme-opt" data-theme="sunny-sky" title="Sunny sky">Sunny</button>
-            <button type="button" class="theme-opt" data-theme="waterfront" title="City waterfront">Waterfront</button>
-            <button type="button" class="theme-opt" data-theme="space-needle" title="Space Needle">Seattle</button>
-            <button type="button" class="theme-opt" data-theme="sunset-harbor" title="Sunset harbor">Harbor</button>
           </div>
         </div>
       </div>

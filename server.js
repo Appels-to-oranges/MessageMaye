@@ -35,6 +35,15 @@ io.on('connection', (socket) => {
     io.to(roomKey).emit('new-message', payload);
   });
 
+  socket.on('change-background', (theme) => {
+    if (!socket.roomKey || !socket.nickname) return;
+    const safeTheme = String(theme).trim().toLowerCase();
+    io.to(socket.roomKey).emit('background-changed', {
+      nickname: socket.nickname,
+      theme: safeTheme
+    });
+  });
+
   socket.on('disconnect', () => {
     if (socket.nickname && socket.roomKey) {
       io.to(socket.roomKey).emit('user-left', { nickname: socket.nickname });

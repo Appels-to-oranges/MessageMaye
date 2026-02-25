@@ -220,7 +220,7 @@ body.lobby {
   margin-left: auto;
 }
 
-.settings-btn {
+.header-icon-btn {
   flex-shrink: 0;
   width: 2.25rem;
   height: 2.25rem;
@@ -237,7 +237,7 @@ body.lobby {
   opacity: 0.85;
 }
 
-.settings-btn:hover {
+.header-icon-btn:hover {
   background: var(--chat-border);
   opacity: 1;
 }
