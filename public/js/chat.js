@@ -12,7 +12,7 @@
 
   const STORAGE_KEYS = { font: 'messageMaye_fontSize', theme: 'messageMaye_theme' };
   const body = document.body;
-  const IMAGE_THEMES = ['winter-night', 'sunny-sky', 'waterfront', 'space-needle', 'sunset-harbor'];
+  const IMAGE_THEMES = ['winter-night', 'sunny-sky', 'waterfront', 'space-needle', 'sunset-harbor', 'buildings'];
 
   function setImageThemeBg(theme) {
     const base = '/images/themes/' + theme;
@@ -28,7 +28,7 @@
 
   function applyTheme(theme) {
     body.classList.remove('theme-warm', 'theme-cool', 'theme-soft', 'theme-ocean',
-      'theme-winter-night', 'theme-sunny-sky', 'theme-waterfront', 'theme-space-needle', 'theme-sunset-harbor');
+      'theme-winter-night', 'theme-sunny-sky', 'theme-waterfront', 'theme-space-needle', 'theme-sunset-harbor', 'theme-buildings');
     if (theme !== 'default') body.classList.add('theme-' + theme);
     var msgEl = document.getElementById('messages');
     if (IMAGE_THEMES.includes(theme)) {

@@ -150,7 +150,8 @@ body.lobby {
 .chat-page.theme-sunny-sky .messages,
 .chat-page.theme-waterfront .messages,
 .chat-page.theme-space-needle .messages,
-.chat-page.theme-sunset-harbor .messages {
+.chat-page.theme-sunset-harbor .messages,
+.chat-page.theme-buildings .messages {
   background-color: #0f0f12;
   background-size: cover;
   background-position: center;
@@ -163,7 +164,8 @@ body.lobby {
 .chat-page.theme-sunny-sky .messages::before,
 .chat-page.theme-waterfront .messages::before,
 .chat-page.theme-space-needle .messages::before,
-.chat-page.theme-sunset-harbor .messages::before {
+.chat-page.theme-sunset-harbor .messages::before,
+.chat-page.theme-buildings .messages::before {
   content: '';
   position: absolute;
   inset: 0;
