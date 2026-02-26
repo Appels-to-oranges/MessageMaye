@@ -151,7 +151,8 @@ body.lobby {
 .chat-page.theme-waterfront .messages,
 .chat-page.theme-space-needle .messages,
 .chat-page.theme-sunset-harbor .messages,
-.chat-page.theme-buildings .messages {
+.chat-page.theme-buildings .messages,
+.chat-page.theme-snow-apartments .messages {
   background-color: #0f0f12;
   background-size: cover;
   background-position: center;
@@ -165,7 +166,8 @@ body.lobby {
 .chat-page.theme-waterfront .messages::before,
 .chat-page.theme-space-needle .messages::before,
 .chat-page.theme-sunset-harbor .messages::before,
-.chat-page.theme-buildings .messages::before {
+.chat-page.theme-buildings .messages::before,
+.chat-page.theme-snow-apartments .messages::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -284,6 +286,10 @@ body.lobby {
 .messages-wrap.yt-active .messages {
   background: transparent !important;
   background-image: none !important;
+}
+
+.messages-wrap.yt-active .messages::before {
+  display: none !important;
 }
 
 .msg {

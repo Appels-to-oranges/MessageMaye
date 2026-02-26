@@ -12,7 +12,7 @@
 
   const STORAGE_KEYS = { font: 'messageMaye_fontSize', theme: 'messageMaye_theme', volume: 'messageMaye_volume' };
   const body = document.body;
-  const IMAGE_THEMES = ['winter-night', 'sunny-sky', 'waterfront', 'space-needle', 'sunset-harbor', 'buildings'];
+  const IMAGE_THEMES = ['winter-night', 'sunny-sky', 'waterfront', 'space-needle', 'sunset-harbor', 'buildings', 'snow-apartments'];
 
   function setImageThemeBg(theme) {
     const base = '/images/themes/' + theme;
@@ -28,7 +28,7 @@
 
   function applyTheme(theme) {
     body.classList.remove('theme-warm', 'theme-cool', 'theme-soft', 'theme-ocean',
-      'theme-winter-night', 'theme-sunny-sky', 'theme-waterfront', 'theme-space-needle', 'theme-sunset-harbor', 'theme-buildings');
+      'theme-winter-night', 'theme-sunny-sky', 'theme-waterfront', 'theme-space-needle', 'theme-sunset-harbor', 'theme-buildings', 'theme-snow-apartments');
     if (theme !== 'default') body.classList.add('theme-' + theme);
     var msgEl = document.getElementById('messages');
     if (IMAGE_THEMES.includes(theme)) {
@@ -222,10 +222,20 @@
   var npRadioBar = document.getElementById('now-playing-radio');
   var npRadioLabel = document.getElementById('now-playing-radio-label');
 
-  window.onYouTubeIframeAPIReady = function () {
+  function onYtApiReady() {
+    if (ytApiReady) return;
     ytApiReady = true;
     if (ytPendingAction) { ytPendingAction(); ytPendingAction = null; }
-  };
+  }
+
+  if (window.YT && window.YT.Player) {
+    onYtApiReady();
+  } else {
+    window.onYouTubeIframeAPIReady = onYtApiReady;
+    var ytPoll = setInterval(function () {
+      if (window.YT && window.YT.Player) { clearInterval(ytPoll); onYtApiReady(); }
+    }, 200);
+  }
 
   function updateNowPlayingYt() {
     if (currentVideoId) {
