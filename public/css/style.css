@@ -731,6 +731,10 @@ body.lobby {
 }
 
 /* Now playing bar */
+.now-playing[hidden] {
+  display: none !important;
+}
+
 .now-playing {
   flex-shrink: 0;
   display: flex;

@@ -119,16 +119,18 @@ io.on('connection', (socket) => {
     if (!socket.roomKey || !socket.nickname) return;
     const room = getRoom(socket.roomKey);
     if (!room.youtube) return;
-    const secs = Math.abs(Number(seconds)) || 10;
+    const secs = Number(seconds) || 10;
     if (room.youtube.paused) {
       room.youtube.pausedElapsed = Math.max(0, room.youtube.pausedElapsed + secs);
     } else {
       room.youtube.startedAt -= secs * 1000;
+      const elapsed = (Date.now() - room.youtube.startedAt) / 1000;
+      if (elapsed < 0) room.youtube.startedAt = Date.now();
     }
     const pos = room.youtube.paused
       ? room.youtube.pausedElapsed
-      : (Date.now() - room.youtube.startedAt) / 1000;
-    io.to(socket.roomKey).emit('youtube-seeked', { nickname: socket.nickname, position: pos });
+      : Math.max(0, (Date.now() - room.youtube.startedAt) / 1000);
+    io.to(socket.roomKey).emit('youtube-seeked', { nickname: socket.nickname, position: pos, direction: secs >= 0 ? 'forward' : 'back' });
   });
 
   socket.on('change-background', (theme) => {

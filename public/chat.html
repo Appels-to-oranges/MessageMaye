@@ -60,6 +60,7 @@
   <div class="now-playing" id="now-playing-yt" hidden>
     <span class="now-playing-label" id="now-playing-yt-label"></span>
     <button type="button" class="now-playing-ctrl" id="yt-pause-btn" title="Pause/Play">&#x23F8;</button>
+    <button type="button" class="now-playing-ctrl" id="yt-rew-btn" title="Back 10s">&#x23EA;</button>
     <button type="button" class="now-playing-ctrl" id="yt-fwd-btn" title="Skip +10s">&#x23E9;</button>
     <button type="button" class="now-playing-stop" id="yt-stop-btn" title="Stop video">&#x25A0;</button>
   </div>
@@ -116,6 +117,13 @@
           <div class="volume-wrap">
             <input type="range" id="volume-slider" min="0" max="100" value="80" class="volume-slider">
             <span class="volume-value" id="volume-value">80%</span>
+          </div>
+        </div>
+        <div class="setting-group">
+          <label>Video volume</label>
+          <div class="volume-wrap">
+            <input type="range" id="video-volume-slider" min="0" max="100" value="80" class="volume-slider">
+            <span class="volume-value" id="video-volume-value">80%</span>
           </div>
         </div>
       </div>

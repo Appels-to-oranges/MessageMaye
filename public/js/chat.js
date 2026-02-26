@@ -10,7 +10,7 @@
   document.getElementById('room-badge').textContent = roomKey;
   document.getElementById('nick-badge').textContent = nickname;
 
-  const STORAGE_KEYS = { font: 'messageMaye_fontSize', theme: 'messageMaye_theme', volume: 'messageMaye_volume' };
+  const STORAGE_KEYS = { font: 'messageMaye_fontSize', theme: 'messageMaye_theme', volume: 'messageMaye_volume', videoVolume: 'messageMaye_videoVolume' };
   const body = document.body;
   const IMAGE_THEMES = ['winter-night', 'sunny-sky', 'waterfront', 'space-needle', 'sunset-harbor', 'buildings', 'snow-apartments'];
 
@@ -100,6 +100,28 @@
     volumeValue.textContent = v + '%';
     localStorage.setItem(STORAGE_KEYS.volume, v);
     radioAudio.volume = v / 100;
+  });
+
+  /* Video volume slider */
+  var savedVideoVol = parseInt(localStorage.getItem(STORAGE_KEYS.videoVolume), 10);
+  if (isNaN(savedVideoVol)) savedVideoVol = 80;
+  var videoVolumeSlider = document.getElementById('video-volume-slider');
+  var videoVolumeValue = document.getElementById('video-volume-value');
+  videoVolumeSlider.value = savedVideoVol;
+  videoVolumeValue.textContent = savedVideoVol + '%';
+
+  function applyVideoVolume(v) {
+    localStorage.setItem(STORAGE_KEYS.videoVolume, v);
+    if (ytPlayer && typeof ytPlayer.setVolume === 'function') {
+      if (v === 0) { ytPlayer.mute(); }
+      else { ytPlayer.unMute(); ytPlayer.setVolume(v); }
+    }
+  }
+
+  videoVolumeSlider.addEventListener('input', function () {
+    var v = parseInt(videoVolumeSlider.value, 10);
+    videoVolumeValue.textContent = v + '%';
+    applyVideoVolume(v);
   });
 
   /* ---------- Backgrounds panel ---------- */
@@ -217,6 +239,7 @@
   var npYtBar = document.getElementById('now-playing-yt');
   var npYtLabel = document.getElementById('now-playing-yt-label');
   var ytPauseBtn = document.getElementById('yt-pause-btn');
+  var ytRewBtn = document.getElementById('yt-rew-btn');
   var ytFwdBtn = document.getElementById('yt-fwd-btn');
   var ytStopBtn = document.getElementById('yt-stop-btn');
   var npRadioBar = document.getElementById('now-playing-radio');
@@ -290,6 +313,7 @@
     var doIt = function () {
       if (ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
         ytPlayer.loadVideoById({ videoId: videoId, startSeconds: startSeconds || 0 });
+        applyVideoVolume(parseInt(videoVolumeSlider.value, 10));
         if (paused) ytShouldPauseOnPlay = true;
       } else {
         ytShouldPauseOnPlay = !!paused;
@@ -299,7 +323,6 @@
           videoId: videoId,
           playerVars: {
             autoplay: 1,
-            mute: 1,
             loop: 1,
             playlist: videoId,
             controls: 0,
@@ -310,6 +333,10 @@
             start: Math.floor(startSeconds || 0)
           },
           events: {
+            onReady: function (e) {
+              var vol = parseInt(videoVolumeSlider.value, 10);
+              if (vol === 0) { e.target.mute(); } else { e.target.unMute(); e.target.setVolume(vol); }
+            },
             onStateChange: function (e) {
               if (ytShouldPauseOnPlay && e.data === YT.PlayerState.PLAYING) {
                 ytShouldPauseOnPlay = false;
@@ -398,12 +425,18 @@
   socket.on('youtube-seeked', function (data) {
     if (ytPlayer && typeof ytPlayer.seekTo === 'function') ytPlayer.seekTo(data.position, true);
     var isOwn = data.nickname === nickname;
-    appendMessage(isOwn ? 'own' : 'other', { nickname: data.nickname, text: 'skipped forward in the video' });
+    var dir = data.direction === 'back' ? 'rewound' : 'skipped forward in';
+    appendMessage(isOwn ? 'own' : 'other', { nickname: data.nickname, text: dir + ' the video' });
   });
 
   ytPauseBtn.addEventListener('click', function () {
     if (!currentVideoId) return;
     socket.emit(ytPaused ? 'resume-youtube' : 'pause-youtube');
+  });
+
+  ytRewBtn.addEventListener('click', function () {
+    if (!currentVideoId) return;
+    socket.emit('seek-youtube', -10);
   });
 
   ytFwdBtn.addEventListener('click', function () {
