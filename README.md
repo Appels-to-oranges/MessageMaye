@@ -1,4 +1,4 @@
-# MessageMaye
+# Virtual Sofa
 
 Real-time room-based messaging. Enter a room key and nickname, then chat with everyone in the same room.
 
@@ -8,7 +8,7 @@ Real-time room-based messaging. Enter a room key and nickname, then chat with ev
 
 1. Install dependencies:
    ```bash
-   cd MessageMaye
+   cd VirtualSofa
    npm install
    ```
 

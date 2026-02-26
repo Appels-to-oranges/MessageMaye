@@ -1,6 +1,6 @@
 (function () {
-  const roomKey = sessionStorage.getItem('messageMaye_room');
-  const nickname = sessionStorage.getItem('messageMaye_nick');
+  const roomKey = sessionStorage.getItem('virtualSofa_room');
+  const nickname = sessionStorage.getItem('virtualSofa_nick');
 
   if (!roomKey || !nickname) {
     window.location.href = '/';
@@ -10,7 +10,7 @@
   document.getElementById('room-badge').textContent = roomKey;
   document.getElementById('nick-badge').textContent = nickname;
 
-  const STORAGE_KEYS = { font: 'messageMaye_fontSize', fontRender: 'messageMaye_fontRender', theme: 'messageMaye_theme', volume: 'messageMaye_volume', videoVolume: 'messageMaye_videoVolume' };
+  const STORAGE_KEYS = { font: 'virtualSofa_fontSize', fontRender: 'virtualSofa_fontRender', theme: 'virtualSofa_theme', volume: 'virtualSofa_volume', videoVolume: 'virtualSofa_videoVolume' };
   const body = document.body;
   const IMAGE_THEMES = ['winter-night', 'sunny-sky', 'waterfront', 'space-needle', 'sunset-harbor', 'buildings', 'snow-apartments'];
 

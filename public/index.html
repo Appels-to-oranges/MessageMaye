@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SimpleMessager — Join a room</title>
+  <title>Virtual Sofa — Join a room</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="lobby">
   <main class="card join-card">
-    <h1>SimpleMessager</h1>
+    <h1>Virtual Sofa</h1>
     <p class="subtitle">Enter a room key and your nickname to start chatting.</p>
     <form id="join-form" class="join-form">
       <label for="room-key">Room key</label>
@@ -25,8 +25,8 @@
       const roomKey = document.getElementById('room-key').value.trim();
       const nickname = document.getElementById('nickname').value.trim();
       if (!roomKey || !nickname) return;
-      sessionStorage.setItem('messageMaye_room', roomKey);
-      sessionStorage.setItem('messageMaye_nick', nickname);
+      sessionStorage.setItem('virtualSofa_room', roomKey);
+      sessionStorage.setItem('virtualSofa_nick', nickname);
       window.location.href = '/chat';
     });
   </script>

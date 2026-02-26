@@ -1,5 +1,5 @@
 {
-  "name": "messagemaye",
+  "name": "virtual-sofa",
   "version": "1.0.0",
   "description": "Real-time room-based messaging with Socket.io",
   "main": "server.js",
