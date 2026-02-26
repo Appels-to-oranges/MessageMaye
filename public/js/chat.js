@@ -212,6 +212,7 @@
     ytBgFrame.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&mute=1&loop=1&playlist=' + videoId + '&controls=0&showinfo=0&modestbranding=1&rel=0&iv_load_policy=3';
     ytBgFrame.hidden = false;
     messagesWrap.classList.add('yt-active');
+    messagesEl.style.backgroundImage = 'none';
     nowPlayingLabel.textContent = '\u{1F3AC} YouTube video playing';
     nowPlayingBar.hidden = false;
   }
@@ -220,6 +221,12 @@
     ytBgFrame.src = '';
     ytBgFrame.hidden = true;
     messagesWrap.classList.remove('yt-active');
+    var currentTheme = localStorage.getItem(STORAGE_KEYS.theme) || 'default';
+    if (IMAGE_THEMES.includes(currentTheme)) {
+      setImageThemeBg(currentTheme);
+    } else {
+      messagesEl.style.backgroundImage = '';
+    }
     if (!radioAudio.src) {
       nowPlayingBar.hidden = true;
     }
