@@ -10,7 +10,7 @@
   document.getElementById('room-badge').textContent = roomKey;
   document.getElementById('nick-badge').textContent = nickname;
 
-  const STORAGE_KEYS = { font: 'messageMaye_fontSize', theme: 'messageMaye_theme' };
+  const STORAGE_KEYS = { font: 'messageMaye_fontSize', theme: 'messageMaye_theme', volume: 'messageMaye_volume' };
   const body = document.body;
   const IMAGE_THEMES = ['winter-night', 'sunny-sky', 'waterfront', 'space-needle', 'sunset-harbor', 'buildings'];
 
@@ -80,6 +80,26 @@
       localStorage.setItem(STORAGE_KEYS.font, btn.dataset.size);
       applySettings();
     });
+  });
+
+  /* Radio audio (declared early so volume slider can reference it) */
+  var radioAudio = new Audio();
+  radioAudio.crossOrigin = 'anonymous';
+  var savedVolume = parseInt(localStorage.getItem(STORAGE_KEYS.volume), 10);
+  if (isNaN(savedVolume)) savedVolume = 80;
+  radioAudio.volume = savedVolume / 100;
+
+  /* Volume slider */
+  var volumeSlider = document.getElementById('volume-slider');
+  var volumeValue = document.getElementById('volume-value');
+  volumeSlider.value = savedVolume;
+  volumeValue.textContent = savedVolume + '%';
+
+  volumeSlider.addEventListener('input', function () {
+    var v = parseInt(volumeSlider.value, 10);
+    volumeValue.textContent = v + '%';
+    localStorage.setItem(STORAGE_KEYS.volume, v);
+    radioAudio.volume = v / 100;
   });
 
   /* ---------- Backgrounds panel ---------- */
@@ -176,8 +196,6 @@
   var nowPlayingBar = document.getElementById('now-playing');
   var nowPlayingLabel = document.getElementById('now-playing-label');
   var radioStopBtn = document.getElementById('radio-stop');
-  var radioAudio = new Audio();
-  radioAudio.crossOrigin = 'anonymous';
   var RADIO_API = 'https://de1.api.radio-browser.info/json/stations/search';
 
   radioOpenBtn.addEventListener('click', function () { openPanel(radioOverlay); });
