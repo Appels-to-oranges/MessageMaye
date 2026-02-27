@@ -52,7 +52,9 @@ io.on('connection', (socket) => {
     const roomKey = socket.roomKey;
     const nickname = socket.nickname;
     if (!roomKey || !nickname) return;
-    const payload = { id: ++msgIdCounter, nickname, text: String(text).trim(), time: new Date().toISOString() };
+    const safeText = String(text).trim().slice(0, 2000);
+    if (!safeText) return;
+    const payload = { id: ++msgIdCounter, nickname, text: safeText, time: new Date().toISOString() };
     io.to(roomKey).emit('new-message', payload);
   });
 
@@ -159,6 +161,7 @@ io.on('connection', (socket) => {
       io.to(socket.roomKey).emit('user-left', { nickname: socket.nickname });
       const count = io.sockets.adapter.rooms.get(socket.roomKey)?.size || 0;
       io.to(socket.roomKey).emit('user-count', count);
+      if (count === 0) delete roomState[socket.roomKey];
     }
   });
 });

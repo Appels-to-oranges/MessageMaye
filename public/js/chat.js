@@ -10,25 +10,28 @@
   document.getElementById('room-badge').textContent = roomKey;
   document.getElementById('nick-badge').textContent = nickname;
 
-  const STORAGE_KEYS = { font: 'virtualSofa_fontSize', fontRender: 'virtualSofa_fontRender', theme: 'virtualSofa_theme', volume: 'virtualSofa_volume', videoVolume: 'virtualSofa_videoVolume' };
+  const STORAGE_KEYS = { font: 'virtualSofa_fontSize', theme: 'virtualSofa_theme', volume: 'virtualSofa_volume', videoVolume: 'virtualSofa_videoVolume' };
   const body = document.body;
-  const IMAGE_THEMES = ['waterfront', 'buildings', 'apartments', 'fireflies', 'foggy-hills', 'snowy-lot'];
+  const IMAGE_THEMES = ['waterfront', 'buildings', 'apartments', 'fireflies', 'snowy-lot'];
+
+  var pendingThemeImg = null;
 
   function setImageThemeBg(theme) {
-    const base = '/images/themes/' + theme;
-    const gifUrl = base + '.gif';
-    const pngUrl = base + '.png';
-    var cacheBust = '?v=' + (window.__themeCacheBust || (window.__themeCacheBust = Date.now()));
+    if (pendingThemeImg) { pendingThemeImg.onload = null; pendingThemeImg.onerror = null; pendingThemeImg.src = ''; pendingThemeImg = null; }
+    var base = '/images/themes/' + theme;
+    var gifUrl = base + '.gif';
+    var pngUrl = base + '.png';
     var msgEl = document.getElementById('messages');
-    msgEl.style.backgroundImage = 'url(' + gifUrl + cacheBust + ')';
     var img = new Image();
-    img.onerror = function () { msgEl.style.backgroundImage = 'url(' + pngUrl + ')'; };
-    img.src = gifUrl + cacheBust;
+    pendingThemeImg = img;
+    img.onload = function () { if (pendingThemeImg === img) { msgEl.style.backgroundImage = 'url(' + gifUrl + ')'; pendingThemeImg = null; } };
+    img.onerror = function () { if (pendingThemeImg === img) { msgEl.style.backgroundImage = 'url(' + pngUrl + ')'; pendingThemeImg = null; } };
+    img.src = gifUrl;
   }
 
   function applyTheme(theme) {
     body.classList.remove('theme-warm', 'theme-cool', 'theme-soft', 'theme-ocean',
-      'theme-waterfront', 'theme-buildings', 'theme-apartments', 'theme-fireflies', 'theme-foggy-hills', 'theme-snowy-lot');
+      'theme-waterfront', 'theme-buildings', 'theme-apartments', 'theme-fireflies', 'theme-snowy-lot');
     if (theme !== 'default') body.classList.add('theme-' + theme);
     var msgEl = document.getElementById('messages');
     if (IMAGE_THEMES.includes(theme)) {
@@ -45,13 +48,9 @@
   function applySettings() {
     var fontSize = parseInt(localStorage.getItem(STORAGE_KEYS.font), 10);
     if (isNaN(fontSize) || fontSize < 10 || fontSize > 28) fontSize = 16;
-    var fontRender = localStorage.getItem(STORAGE_KEYS.fontRender) || 'auto';
     var theme = localStorage.getItem(STORAGE_KEYS.theme) || 'default';
 
     body.style.setProperty('--chat-font-size', fontSize + 'px');
-
-    body.classList.remove('render-smooth', 'render-crisp', 'render-pixel');
-    if (fontRender !== 'auto') body.classList.add('render-' + fontRender);
 
     applyTheme(theme);
 
@@ -61,10 +60,6 @@
     if (slider) slider.value = fontSize;
     if (valueEl) valueEl.textContent = fontSize + 'px';
     if (preview) preview.style.fontSize = fontSize + 'px';
-
-    document.querySelectorAll('.render-opt').forEach(function (el) {
-      el.classList.toggle('active', el.dataset.render === fontRender);
-    });
   }
 
   applySettings();
@@ -101,16 +96,8 @@
     if (fontSizePreview) fontSizePreview.style.fontSize = v + 'px';
   });
 
-  document.querySelectorAll('.render-opt').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      localStorage.setItem(STORAGE_KEYS.fontRender, btn.dataset.render);
-      applySettings();
-    });
-  });
-
   /* Radio audio (declared early so volume slider can reference it) */
   var radioAudio = new Audio();
-  radioAudio.crossOrigin = 'anonymous';
   var savedVolume = parseInt(localStorage.getItem(STORAGE_KEYS.volume), 10);
   if (isNaN(savedVolume)) savedVolume = 80;
   radioAudio.volume = savedVolume / 100;
@@ -173,6 +160,7 @@
     return ((h % 360) + 360) % 360;
   }
 
+  var MAX_MESSAGES = 300;
   var REACTION_EMOJIS = ['\u{1F44D}','\u{2764}\u{FE0F}','\u{1F602}','\u{1F62E}','\u{1F622}','\u{1F525}','\u{1F44F}','\u{1F4AF}'];
   var messageReactions = {};
   var activeReactionPicker = null;
@@ -273,6 +261,9 @@
       }
     }
     messagesEl.appendChild(div);
+    while (messagesEl.children.length > MAX_MESSAGES) {
+      messagesEl.removeChild(messagesEl.firstChild);
+    }
     messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
@@ -402,7 +393,9 @@
   }
 
   function fetchYtTitle(videoId) {
-    fetch('https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=' + videoId + '&format=json')
+    var ctrl = new AbortController();
+    setTimeout(function () { ctrl.abort(); }, 8000);
+    fetch('https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=' + videoId + '&format=json', { signal: ctrl.signal })
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (d.title) {
@@ -578,7 +571,9 @@
   function searchStations(query) {
     radioResults.innerHTML = '<div class="radio-empty">Searching...</div>';
     var params = '?name=' + encodeURIComponent(query) + '&limit=25&order=votes&reverse=true&hidebroken=true';
-    fetch(RADIO_API + params)
+    var ctrl = new AbortController();
+    setTimeout(function () { ctrl.abort(); }, 10000);
+    fetch(RADIO_API + params, { signal: ctrl.signal })
       .then(function (r) { return r.json(); })
       .then(function (stations) {
         radioResults.innerHTML = '';
