@@ -20,6 +20,29 @@
   </main>
   <script src="/js/app.js"></script>
   <script>
+    (function() {
+      var themes = ['waterfront', 'buildings', 'apartments', 'fireflies', 'snowy-lot'];
+      var pick = themes[Math.floor(Math.random() * themes.length)];
+      var gifUrl = '/images/themes/' + pick + '.gif';
+      var pngUrl = '/images/themes/' + pick + '.png';
+      var img = new Image();
+      img.onload = function() { document.body.style.backgroundImage = 'url(' + gifUrl + ')'; };
+      img.onerror = function() { document.body.style.backgroundImage = 'url(' + pngUrl + ')'; };
+      img.src = gifUrl;
+    })();
+
+    (function() {
+      var params = new URLSearchParams(window.location.search);
+      var room = params.get('room');
+      if (room) {
+        var input = document.getElementById('room-key');
+        input.value = room;
+        input.setAttribute('readonly', true);
+        input.style.opacity = '0.7';
+        document.getElementById('nickname').focus();
+      }
+    })();
+
     document.getElementById('join-form').addEventListener('submit', (e) => {
       e.preventDefault();
       const roomKey = document.getElementById('room-key').value.trim();

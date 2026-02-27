@@ -10,6 +10,23 @@
   document.getElementById('room-badge').textContent = roomKey;
   document.getElementById('nick-badge').textContent = nickname;
 
+  /* ---------- Invite link ---------- */
+  var inviteBtn = document.getElementById('invite-btn');
+  var inviteToast = document.createElement('div');
+  inviteToast.className = 'invite-toast';
+  inviteToast.textContent = 'Invite link copied!';
+  document.body.appendChild(inviteToast);
+
+  inviteBtn.addEventListener('click', function () {
+    var url = window.location.origin + '/?room=' + encodeURIComponent(roomKey);
+    navigator.clipboard.writeText(url).then(function () {
+      inviteToast.classList.add('show');
+      setTimeout(function () { inviteToast.classList.remove('show'); }, 2000);
+    }).catch(function () {
+      prompt('Copy this invite link:', url);
+    });
+  });
+
   const STORAGE_KEYS = { font: 'virtualSofa_fontSize', theme: 'virtualSofa_theme', volume: 'virtualSofa_volume', videoVolume: 'virtualSofa_videoVolume' };
   const body = document.body;
   const IMAGE_THEMES = ['waterfront', 'buildings', 'apartments', 'fireflies', 'snowy-lot'];

@@ -16,6 +16,23 @@ body.lobby {
   align-items: center;
   justify-content: center;
   padding: 1rem;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+}
+
+body.lobby::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 0;
+}
+
+body.lobby > * {
+  position: relative;
+  z-index: 1;
 }
 
 .card {
@@ -218,6 +235,54 @@ body.lobby {
   padding: 0.15rem 0.45rem;
   background: rgba(122, 162, 247, 0.12);
   border-radius: 8px;
+}
+
+.invite-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.55rem;
+  border: 1px solid rgba(122, 162, 247, 0.3);
+  border-radius: 6px;
+  background: rgba(122, 162, 247, 0.1);
+  color: #7aa2f7;
+  font-size: 0.75rem;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.invite-btn:hover {
+  background: rgba(122, 162, 247, 0.2);
+  border-color: #7aa2f7;
+}
+
+.invite-btn svg {
+  flex-shrink: 0;
+}
+
+.invite-toast {
+  position: fixed;
+  top: 3.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #9ece6a;
+  color: #1a1b26;
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: inherit;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  z-index: 2000;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+
+.invite-toast.show {
+  opacity: 1;
 }
 
 .nick-badge {
