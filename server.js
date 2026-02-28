@@ -144,6 +144,19 @@ io.on('connection', (socket) => {
     io.to(socket.roomKey).emit('youtube-seeked', { nickname: socket.nickname, position: pos, direction: secs >= 0 ? 'forward' : 'back' });
   });
 
+  socket.on('seek-youtube-absolute', (position) => {
+    if (!socket.roomKey || !socket.nickname) return;
+    const room = getRoom(socket.roomKey);
+    if (!room.youtube) return;
+    const pos = Math.max(0, Number(position) || 0);
+    if (room.youtube.paused) {
+      room.youtube.pausedElapsed = pos;
+    } else {
+      room.youtube.startedAt = Date.now() - (pos * 1000);
+    }
+    io.to(socket.roomKey).emit('youtube-seeked', { nickname: socket.nickname, position: pos, direction: 'seek' });
+  });
+
   socket.on('change-background', (theme) => {
     if (!socket.roomKey || !socket.nickname) return;
     const safeTheme = String(theme).trim().toLowerCase();

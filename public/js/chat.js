@@ -408,6 +408,18 @@
   var currentYtTitle = '';
   var currentRadioName = '';
 
+  var ytRemoteActionTime = 0;
+  var ytLastSyncTime = 0;
+  var ytLastSyncTimestamp = 0;
+  var ytSeekPollId = null;
+
+  function markRemoteAction() { ytRemoteActionTime = Date.now(); }
+  function isRemoteAction() { return (Date.now() - ytRemoteActionTime) < 2000; }
+  function updateSyncPos(pos) {
+    ytLastSyncTime = (typeof pos === 'number') ? pos : (ytPlayer && ytPlayer.getCurrentTime ? ytPlayer.getCurrentTime() : 0);
+    ytLastSyncTimestamp = Date.now();
+  }
+
   var npYtBar = document.getElementById('now-playing-yt');
   var npYtLabel = document.getElementById('now-playing-yt-label');
   var ytPauseBtn = document.getElementById('yt-pause-btn');
@@ -499,22 +511,54 @@
             autoplay: 1,
             loop: 1,
             playlist: videoId,
-            controls: 0,
-            showinfo: 0,
+            controls: 1,
             modestbranding: 1,
             rel: 0,
             iv_load_policy: 3,
+            fs: 0,
             start: Math.floor(startSeconds || 0)
           },
           events: {
             onReady: function (e) {
               var vol = parseInt(videoVolumeSlider.value, 10);
               if (vol === 0) { e.target.mute(); } else { e.target.unMute(); e.target.setVolume(vol); }
+              updateSyncPos(startSeconds || 0);
             },
             onStateChange: function (e) {
               if (ytShouldPauseOnPlay && e.data === YT.PlayerState.PLAYING) {
                 ytShouldPauseOnPlay = false;
+                markRemoteAction();
                 e.target.pauseVideo();
+                return;
+              }
+
+              if (isRemoteAction()) {
+                if (e.data === YT.PlayerState.PLAYING) updateSyncPos();
+                return;
+              }
+
+              if (!currentVideoId) return;
+
+              if (e.data === YT.PlayerState.PAUSED && !ytPaused) {
+                markRemoteAction();
+                socket.emit('pause-youtube');
+              } else if (e.data === YT.PlayerState.PLAYING) {
+                var t = e.target.getCurrentTime();
+                if (ytPaused) {
+                  markRemoteAction();
+                  socket.emit('resume-youtube');
+                } else if (ytLastSyncTimestamp > 0) {
+                  var expected = ytLastSyncTime + (Date.now() - ytLastSyncTimestamp) / 1000;
+                  if (Math.abs(t - expected) > 3) {
+                    markRemoteAction();
+                    socket.emit('seek-youtube-absolute', t);
+                  }
+                }
+                updateSyncPos(t);
+              } else if (e.data === YT.PlayerState.ENDED) {
+                markRemoteAction();
+                e.target.seekTo(0, true);
+                e.target.playVideo();
               }
             }
           }
@@ -525,9 +569,31 @@
     if (ytApiReady) { doIt(); } else { ytPendingAction = doIt; }
     updateNowPlayingYt();
     fetchYtTitle(videoId);
+
+    if (ytSeekPollId) clearInterval(ytSeekPollId);
+    ytSeekPollId = setInterval(function () {
+      if (!ytPlayer || !currentVideoId || typeof ytPlayer.getCurrentTime !== 'function') return;
+      if (isRemoteAction()) return;
+      var t = ytPlayer.getCurrentTime();
+      if (ytPaused) {
+        if (Math.abs(t - ytLastSyncTime) > 3) {
+          markRemoteAction();
+          socket.emit('seek-youtube-absolute', t);
+          updateSyncPos(t);
+        }
+      } else if (ytLastSyncTimestamp > 0) {
+        var expected = ytLastSyncTime + (Date.now() - ytLastSyncTimestamp) / 1000;
+        if (Math.abs(t - expected) > 3) {
+          markRemoteAction();
+          socket.emit('seek-youtube-absolute', t);
+          updateSyncPos(t);
+        }
+      }
+    }, 1000);
   }
 
   function hideYouTube() {
+    if (ytSeekPollId) { clearInterval(ytSeekPollId); ytSeekPollId = null; }
     if (ytPlayer && typeof ytPlayer.stopVideo === 'function') ytPlayer.stopVideo();
     ytBgContainer.hidden = true;
     body.classList.remove('yt-theater');
@@ -581,25 +647,31 @@
   });
 
   socket.on('youtube-paused', function (data) {
+    markRemoteAction();
     if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') ytPlayer.pauseVideo();
     ytPaused = true;
+    ytLastSyncTimestamp = 0;
     updateNowPlayingYt();
     var isOwn = data.nickname === nickname;
     appendMessage(isOwn ? 'own' : 'other', { nickname: data.nickname, text: 'paused the video' });
   });
 
   socket.on('youtube-resumed', function (data) {
+    markRemoteAction();
     if (ytPlayer && typeof ytPlayer.playVideo === 'function') ytPlayer.playVideo();
     ytPaused = false;
+    updateSyncPos();
     updateNowPlayingYt();
     var isOwn = data.nickname === nickname;
     appendMessage(isOwn ? 'own' : 'other', { nickname: data.nickname, text: 'resumed the video' });
   });
 
   socket.on('youtube-seeked', function (data) {
+    markRemoteAction();
     if (ytPlayer && typeof ytPlayer.seekTo === 'function') ytPlayer.seekTo(data.position, true);
+    updateSyncPos(data.position);
     var isOwn = data.nickname === nickname;
-    var dir = data.direction === 'back' ? 'rewound' : 'skipped forward in';
+    var dir = data.direction === 'back' ? 'rewound' : (data.direction === 'seek' ? 'seeked in' : 'skipped forward in');
     appendMessage(isOwn ? 'own' : 'other', { nickname: data.nickname, text: dir + ' the video' });
   });
 
