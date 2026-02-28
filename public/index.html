@@ -25,6 +25,7 @@
       var pick = themes[Math.floor(Math.random() * themes.length)];
       var gifUrl = '/images/themes/' + pick + '.gif';
       var pngUrl = '/images/themes/' + pick + '.png';
+      document.body.classList.add('lobby-theme-' + pick);
       var img = new Image();
       img.onload = function() { document.body.style.backgroundImage = 'url(' + gifUrl + ')'; };
       img.onerror = function() { document.body.style.backgroundImage = 'url(' + pngUrl + ')'; };
