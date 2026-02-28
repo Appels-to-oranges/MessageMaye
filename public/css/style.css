@@ -479,6 +479,16 @@ body.lobby.lobby-theme-snowy-lot {
   gap: 0.5rem;
 }
 
+.msg a {
+  color: inherit;
+  text-decoration: underline;
+  word-break: break-all;
+}
+
+.msg a:hover {
+  opacity: 0.8;
+}
+
 .msg {
   max-width: 85%;
   padding: 0.5rem 0.75rem;
